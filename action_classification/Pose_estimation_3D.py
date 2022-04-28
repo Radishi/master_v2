@@ -94,10 +94,10 @@ class Pose_3D_estimation():
         mmdet_results = inference_detector(self.det_model, image)
         # keep the person class bounding boxes.
         person_results = process_mmdet_results(mmdet_results, self.det_cat_id)
-        # optional
-        return_heatmap = False
-        # e.g. use ('backbone', ) to return backbone feature
-        output_layer_names = None
+
+        pose_det_results_list = []
+        next_id = 0
+        pose_det_results = []
 
         pose_det_results, returned_outputs = inference_top_down_pose_model(
             self.pose_model_2D,
@@ -107,9 +107,8 @@ class Pose_3D_estimation():
             format='xyxy',
             dataset=self.dataset_2d,
             dataset_info=self.dataset_info_2d,
-            return_heatmap=return_heatmap,
-            outputs=output_layer_names)
-
+            return_heatmap=False,
+            outputs=None)
 
         pose_lift_results = inference_pose_lifter_model(
             self.pose_lift_model,
@@ -128,21 +127,9 @@ class Pose_3D_estimation():
             #         keypoints_3d[..., 2], axis=-1, keepdims=True)
             res['keypoints_3d'] = keypoints_3d
             # Add title
-            det_res = pose_det_results[idx]
-            instance_id = det_res.get('track_id', idx)
-            res['title'] = f'Prediction ({instance_id})'
+            res['title'] = f'Prediction ()'
             pose_lift_results_vis.append(res)
-            # Add ground truth
-            # if args.show_ground_truth:
-            #     if 'keypoints_3d' not in det_res:
-            #         print('Fail to show ground truth. Please make sure that'
-            #               ' the instance annotations from the Json file'
-            #               ' contain "keypoints_3d".')
-            #     else:
-            #         gt = res.copy()
-            #         gt['keypoints_3d'] = det_res['keypoints_3d']
-            #         gt['title'] = f'Ground truth ({instance_id})'
-            #         pose_lift_results_vis.append(gt)
+
 
         # Visualization
         if self.out_img_root is None:
