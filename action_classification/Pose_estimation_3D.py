@@ -1,11 +1,11 @@
 
 # Copyright (c) OpenMMLab. All rights reserved.
 import os
-import abc
+import mmcv
 import warnings
 import pickle
 from mmpose.apis import (inference_top_down_pose_model,inference_pose_lifter_model, init_pose_model,
-                         process_mmdet_results, vis_3d_pose_result)
+                         process_mmdet_results, vis_3d_pose_result,extract_pose_sequence)
 from mmpose.datasets import DatasetInfo
 try:
     from mmdet.apis import inference_detector, init_detector
@@ -110,46 +110,102 @@ class Pose_3D_estimation():
             return_heatmap=False,
             outputs=None)
 
-        pose_lift_results = inference_pose_lifter_model(
-            self.pose_lift_model,
-            pose_results_2d=[pose_det_results],
-            dataset=self.dataset_3D,
-            dataset_info=self.dataset_info_3D,
-            with_track_id=False)
+        for res in pose_det_results:
+            keypoints = res['keypoints']
+            res['keypoints'] = self.covert_keypoint_definition(
+                keypoints, self.dataset_2d, self.dataset_3D)
 
-        # Pose processing
-        pose_lift_results_vis = []
-        for idx, res in enumerate(pose_lift_results):
-            keypoints_3d = res['keypoints_3d']
-            # rebase height (z-axis)
-            # if args.rebase_keypoint_height:
-            #     keypoints_3d[..., 2] -= np.min(
-            #         keypoints_3d[..., 2], axis=-1, keepdims=True)
-            res['keypoints_3d'] = keypoints_3d
-            # Add title
-            res['title'] = f'Prediction ()'
-            pose_lift_results_vis.append(res)
-
-
-        # Visualization
-        if self.out_img_root is None:
-            out_file = None
+        if hasattr(self.pose_lift_model.cfg, 'test_data_cfg'):
+            data_cfg = self.pose_lift_model.cfg.test_data_cfg
         else:
-            os.makedirs(self.out_img_root, exist_ok=True)
-            out_file = osp.join(self.out_img_root, image_name+'_out.jpg')
-        img = None
+            data_cfg = self.pose_lift_model.cfg.data_cfg    # ----------------加到初始化
 
-        if is_show_keypoints:
-            img = vis_3d_pose_result(
+        num_instances = -1
+        for i, pose_det_results in enumerate(
+                mmcv.track_iter_progress([pose_det_results])):
+            # extract and pad input pose2d sequence
+            pose_results_2d = extract_pose_sequence(
+                pose_det_results_list,
+                frame_idx=i,
+                causal=data_cfg.causal,
+                seq_len=data_cfg.seq_len,
+                step=data_cfg.seq_frame_interval)
+            # 2D-to-3D pose lifting
+
+            pose_lift_results = inference_pose_lifter_model(
                 self.pose_lift_model,
-                result=pose_lift_results,
-                img=image,
+                pose_results_2d=pose_results_2d,
+                dataset=self.dataset_3D,
                 dataset_info=self.dataset_info_3D,
-                out_file=out_file)
+                with_track_id=False)
+
+            # Pose processing
+            pose_lift_results_vis = []
+            for idx, res in enumerate(pose_lift_results):
+                keypoints_3d = res['keypoints_3d']
+                # exchange y,z-axis, and then reverse the direction of x,z-axis
+                keypoints_3d = keypoints_3d[..., [0, 2, 1]]
+                keypoints_3d[..., 0] = -keypoints_3d[..., 0]
+                keypoints_3d[..., 2] = -keypoints_3d[..., 2]
+                # rebase height (z-axis)
+                # if args.rebase_keypoint_height:
+                #     keypoints_3d[..., 2] -= np.min(
+                #         keypoints_3d[..., 2], axis=-1, keepdims=True)
+                res['keypoints_3d'] = keypoints_3d
+                # add title
+                det_res = pose_det_results[idx]
+                res['title'] = f'Prediction ()'
+                # only visualize the target frame
+                res['keypoints'] = det_res['keypoints']
+                res['bbox'] = det_res['bbox']
+                pose_lift_results_vis.append(res)
+
+            # Visualization
+            if num_instances < 0:
+                num_instances = len(pose_lift_results_vis)
+            img_vis = None
+            if is_show_keypoints:
+                img_vis = vis_3d_pose_result(
+                    self.pose_lift_model,
+                    result=pose_lift_results_vis,
+                    img=image,
+                    out_file=None,
+                    radius=8,
+                    thickness=2,
+                    num_instances=num_instances)
+
         # 增加返回人体检测框 mmdet_results 用来绑定其他信息
-        return img, pose_lift_results, mmdet_results
+        return img_vis, pose_lift_results, mmdet_results
 
+    def covert_keypoint_definition(keypoints, pose_det_dataset, pose_lift_dataset):
+        """Convert pose det dataset keypoints definition to pose lifter dataset
+        keypoints definition.
 
+        Args:
+            keypoints (ndarray[K, 2 or 3]): 2D keypoints to be transformed.
+            pose_det_dataset, (str): Name of the dataset for 2D pose detector.
+            pose_lift_dataset (str): Name of the dataset for pose lifter model.
+        """
+        if pose_det_dataset == 'TopDownH36MDataset' and \
+                pose_lift_dataset == 'Body3DH36MDataset':
+            return keypoints
+        elif pose_det_dataset == 'TopDownCocoDataset' and \
+                pose_lift_dataset == 'Body3DH36MDataset':
+            keypoints_new = np.zeros((17, keypoints.shape[1]))
+            # pelvis is in the middle of l_hip and r_hip
+            keypoints_new[0] = (keypoints[11] + keypoints[12]) / 2
+            # thorax is in the middle of l_shoulder and r_shoulder
+            keypoints_new[8] = (keypoints[5] + keypoints[6]) / 2
+            # head is in the middle of l_eye and r_eye
+            keypoints_new[10] = (keypoints[1] + keypoints[2]) / 2
+            # spine is in the middle of thorax and pelvis
+            keypoints_new[7] = (keypoints_new[0] + keypoints_new[8]) / 2
+            # rearrange other keypoints
+            keypoints_new[[1, 2, 3, 4, 5, 6, 9, 11, 12, 13, 14, 15, 16]] = \
+                keypoints[[12, 14, 16, 11, 13, 15, 0, 5, 7, 9, 6, 8, 10]]
+            return keypoints_new
+        else:
+            raise NotImplementedError
 #1.获取文件名列表
 def get_file_names(folder_dir):
     file_names = os.listdir(folder_dir)
