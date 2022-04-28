@@ -59,15 +59,15 @@ class Pose_3D_estimation():
             self.dataset_info_2d = DatasetInfo(self.dataset_info_2d)
 
         #初始化3D姿态估计模型
-        pose_lift_model = init_pose_model(
+        self.pose_lift_model = init_pose_model(
             self.pose_lifter_config,
             self.pose_lifter_checkpoint,
             device=self.device.lower())
-        assert pose_lift_model.cfg.model.type == 'PoseLifter', 'Only' \
+        assert self.pose_lift_model.cfg.model.type == 'PoseLifter', 'Only' \
                                                                '"PoseLifter" model is supported for the 2nd stage ' \
                                                                '(2D-to-3D lifting)'
-        self.dataset_3D = pose_lift_model.cfg.data['test']['type']
-        self.dataset_info_3D = pose_lift_model.cfg.data['test'].get('dataset_info', None)
+        self.dataset_3D = self.pose_lift_model.cfg.data['test']['type']
+        self.dataset_info_3D = self.pose_lift_model.cfg.data['test'].get('dataset_info', None)
         if self.dataset_info_3D is None:
             warnings.warn(
                 'Please set `dataset_info` in the config.'
