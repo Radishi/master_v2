@@ -141,7 +141,7 @@ class Pose_3D_estimation():
                 dataset=self.dataset_3D,
                 dataset_info=self.dataset_info_3D,
                 with_track_id=False,
-                image_size=image.shape,
+                image_size=image.shape[0:2],
                 norm_pose_2d=True)
 
             # Pose processing
@@ -153,9 +153,10 @@ class Pose_3D_estimation():
                 keypoints_3d[..., 0] = -keypoints_3d[..., 0]
                 keypoints_3d[..., 2] = -keypoints_3d[..., 2]
                 # rebase height (z-axis)
-                # if args.rebase_keypoint_height:
-                #     keypoints_3d[..., 2] -= np.min(
-                #         keypoints_3d[..., 2], axis=-1, keepdims=True)
+                rebase_keypoint_height = True
+                if rebase_keypoint_height:
+                    keypoints_3d[..., 2] -= np.min(
+                        keypoints_3d[..., 2], axis=-1, keepdims=True)
                 res['keypoints_3d'] = keypoints_3d
                 # add title
                 det_res = pose_det_results[idx]
@@ -170,14 +171,20 @@ class Pose_3D_estimation():
                 num_instances = len(pose_lift_results_vis)
             img_vis = None
             if is_show_keypoints:
+                # img_vis = vis_3d_pose_result(
+                #     self.pose_lift_model,
+                #     result=pose_lift_results_vis,
+                #     img=image,
+                #     out_file=None,
+                #     radius=8,
+                #     thickness=2,
+                #     num_instances=num_instances)
                 img_vis = vis_3d_pose_result(
                     self.pose_lift_model,
                     result=pose_lift_results_vis,
-                    img=image,
-                    out_file=None,
-                    radius=8,
-                    thickness=2,
-                    num_instances=num_instances)
+                    img=image_name,
+                    dataset_info=self.dataset_info_3D,
+                    out_file=None)
 
         # 增加返回人体检测框 mmdet_results 用来绑定其他信息
         return img_vis, pose_lift_results, mmdet_results
