@@ -35,6 +35,7 @@ class Pose_3D_estimation():
         self.kpt_thr = 0.5
         self.radius = 4
         self.thickness = 1
+        self.out_img_root = None
         assert has_mmdet, 'Please install mmdet to run the demo.'
 
 
@@ -85,7 +86,9 @@ class Pose_3D_estimation():
         Returns:
         """
         if isinstance(image,str):
+            image_name = image.split("/")[-1]
             image = cv2.imread(image)
+            self.out_img_root = "result_img"
 
         # test a single image, the resulting box is (x1, y1, x2, y2)
         mmdet_results = inference_detector(self.det_model, image)
@@ -125,7 +128,7 @@ class Pose_3D_estimation():
             out_file = None
         else:
             os.makedirs(self.out_img_root, exist_ok=True)
-            out_file = osp.join(self.out_img_root, f'_vis.jpg')
+            out_file = osp.join(self.out_img_root, image_name+'_out.jpg')
         img = None
 
         if is_show_keypoints:
