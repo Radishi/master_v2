@@ -1,0 +1,7 @@
+"""
+landmark_3d_68  1k3d68.onnx
+landmark_2d_106   2d106det.onnx
+detection  det_10g.onnx
+genderage    genderage.onnx
+recognition  w600k_r50.onnx
+"""
