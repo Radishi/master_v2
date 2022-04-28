@@ -182,7 +182,7 @@ class Pose_3D_estimation():
                 img_vis = vis_3d_pose_result(
                     self.pose_lift_model,
                     result=pose_lift_results_vis,
-                    img=image_name,
+                    img=image,
                     dataset_info=self.dataset_info_3D,
                     out_file=None)
 
