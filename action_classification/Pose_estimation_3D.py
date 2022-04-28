@@ -86,7 +86,7 @@ class Pose_3D_estimation():
         Returns:
         """
         if isinstance(image,str):
-            image_name = image.split("/")[-1]
+            image_name = image.split("/")[-1].split(".")[0]
             image = cv2.imread(image)
             self.out_img_root = "result_img"
 
@@ -118,10 +118,31 @@ class Pose_3D_estimation():
             dataset_info=self.dataset_info_3D,
             with_track_id=False)
 
-        # # Pose processing
-        # pose_lift_results_vis = []
-        # for idx, res in enumerate(pose_lift_results):
-        #     pose_lift_results_vis.append(res)
+        # Pose processing
+        pose_lift_results_vis = []
+        for idx, res in enumerate(pose_lift_results):
+            keypoints_3d = res['keypoints_3d']
+            # rebase height (z-axis)
+            # if args.rebase_keypoint_height:
+            #     keypoints_3d[..., 2] -= np.min(
+            #         keypoints_3d[..., 2], axis=-1, keepdims=True)
+            res['keypoints_3d'] = keypoints_3d
+            # Add title
+            det_res = pose_det_results[idx]
+            instance_id = det_res.get('track_id', idx)
+            res['title'] = f'Prediction ({instance_id})'
+            pose_lift_results_vis.append(res)
+            # Add ground truth
+            # if args.show_ground_truth:
+            #     if 'keypoints_3d' not in det_res:
+            #         print('Fail to show ground truth. Please make sure that'
+            #               ' the instance annotations from the Json file'
+            #               ' contain "keypoints_3d".')
+            #     else:
+            #         gt = res.copy()
+            #         gt['keypoints_3d'] = det_res['keypoints_3d']
+            #         gt['title'] = f'Ground truth ({instance_id})'
+            #         pose_lift_results_vis.append(gt)
 
         # Visualization
         if self.out_img_root is None:
