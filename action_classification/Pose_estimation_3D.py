@@ -4,6 +4,7 @@ import os
 import mmcv
 import warnings
 import pickle
+import copy
 from mmpose.apis import (inference_top_down_pose_model,inference_pose_lifter_model, init_pose_model,
                          process_mmdet_results, vis_3d_pose_result,extract_pose_sequence)
 from mmpose.datasets import DatasetInfo
@@ -19,22 +20,23 @@ import os.path as osp
 class Pose_3D_estimation():
 
     def __init__(self):
-
-        self.pose_lifter_config = "action_classification/configs/body/3d_kpt_sview_rgb_img/pose_lift/h36m/simplebaseline3d_h36m.py"
-        self.pose_lifter_checkpoint = "action_classification/checkpoints/simple3Dbaseline_h36m-f0ad73a4_20210419.pth"
-        self.pose_config_2D = f'action_classification/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py'  # noqa: E501
-        # args.pose_checkpoint = 'https://download.openmmlab.com/mmpose/top_down/hrnet/hrnet_w32_coco_256x192-c78dce93_20200708.pth'  # noqa: E501
-        self.pose_checkpoint_2D = 'action_classification/checkpoints/hrnet_w32_coco_256x192-c78dce93_20200708.pth'  # noqa: E501
+        self.pose_lifter_config = "action_classification/configs/body/3d_kpt_sview_rgb_vid/video_pose_lift/h36m/videopose3d_h36m_243frames_fullconv_supervised_cpn_ft.py"
+        self.pose_lifter_checkpoint = "action_classification/checkpoints/videopose_h36m_243frames_fullconv_supervised_cpn_ft-88f5abbb_20210527.pth"
+        #self.pose_config_2D = f'action_classification/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py'  # noqa: E501
+        self.pose_config_2D = f'action_classification/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w48_coco_256x192.py'
+        #self.pose_checkpoint_2D = 'action_classification/checkpoints/hrnet_w32_coco_256x192-c78dce93_20200708.pth'  # noqa: E501
+        self.pose_checkpoint_2D = 'action_classification/checkpoints/hrnet_w48_coco_256x192-b9e0b3ab_20200708.pth'  # noqa: E501
         self.device = "cuda:0"
+        #faster_rcnn_r50_fpn_coco.py
         self.det_config = f'action_classification/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco-person.py'  # noqa: E501
         # args.det_checkpoint = 'https://download.openmmlab.com/mmdetection/v2.0/faster_rcnn/faster_rcnn_r50_fpn_1x_coco-person/faster_rcnn_r50_fpn_1x_coco-person_20201216_175929-d022e227.pth'  # noqa: E501
         self.det_checkpoint = 'action_classification/checkpoints/faster_rcnn_r50_fpn_1x_coco-person_20201216_175929-d022e227.pth'  # noqa: E501
         self.det_score_thr = 0.5
         self.det_cat_id = 1
-        self.bbox_thr = 0.5
-        self.kpt_thr = 0.5
-        self.radius = 4
-        self.thickness = 1
+        self.bbox_thr = 0.9
+        self.kpt_thr = 0.3
+        self.radius = 8
+        self.thickness = 2
         self.out_img_root = None
         assert has_mmdet, 'Please install mmdet to run the demo.'
 
@@ -109,6 +111,7 @@ class Pose_3D_estimation():
             dataset_info=self.dataset_info_2d,
             return_heatmap=False,
             outputs=None)
+        pose_det_results_list.append(copy.deepcopy(pose_det_results))
 
         for res in pose_det_results:
             keypoints = res['keypoints']
@@ -122,7 +125,7 @@ class Pose_3D_estimation():
 
         num_instances = -1
         for i, pose_det_results in enumerate(
-                mmcv.track_iter_progress([pose_det_results])):
+                mmcv.track_iter_progress(pose_det_results_list)):
             # extract and pad input pose2d sequence
             pose_results_2d = extract_pose_sequence(
                 pose_det_results_list,
