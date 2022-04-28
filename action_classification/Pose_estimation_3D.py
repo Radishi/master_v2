@@ -140,7 +140,9 @@ class Pose_3D_estimation():
                 pose_results_2d=pose_results_2d,
                 dataset=self.dataset_3D,
                 dataset_info=self.dataset_info_3D,
-                with_track_id=False)
+                with_track_id=False,
+                image_size=image.shape,
+                norm_pose_2d=True)
 
             # Pose processing
             pose_lift_results_vis = []
