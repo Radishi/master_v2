@@ -5,6 +5,7 @@ import mmcv
 import warnings
 import pickle
 import copy
+import numpy as np
 from mmpose.apis import (inference_top_down_pose_model,inference_pose_lifter_model, init_pose_model,
                          process_mmdet_results, vis_3d_pose_result,extract_pose_sequence)
 from mmpose.datasets import DatasetInfo
@@ -27,7 +28,6 @@ class Pose_3D_estimation():
         #self.pose_checkpoint_2D = 'action_classification/checkpoints/hrnet_w32_coco_256x192-c78dce93_20200708.pth'  # noqa: E501
         self.pose_checkpoint_2D = 'action_classification/checkpoints/hrnet_w48_coco_256x192-b9e0b3ab_20200708.pth'  # noqa: E501
         self.device = "cuda:0"
-        #faster_rcnn_r50_fpn_coco.py
         self.det_config = f'action_classification/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco-person.py'  # noqa: E501
         # args.det_checkpoint = 'https://download.openmmlab.com/mmdetection/v2.0/faster_rcnn/faster_rcnn_r50_fpn_1x_coco-person/faster_rcnn_r50_fpn_1x_coco-person_20201216_175929-d022e227.pth'  # noqa: E501
         self.det_checkpoint = 'action_classification/checkpoints/faster_rcnn_r50_fpn_1x_coco-person_20201216_175929-d022e227.pth'  # noqa: E501
@@ -180,7 +180,7 @@ class Pose_3D_estimation():
         # 增加返回人体检测框 mmdet_results 用来绑定其他信息
         return img_vis, pose_lift_results, mmdet_results
 
-    def covert_keypoint_definition(keypoints, pose_det_dataset, pose_lift_dataset):
+    def covert_keypoint_definition(self,keypoints, pose_det_dataset, pose_lift_dataset):
         """Convert pose det dataset keypoints definition to pose lifter dataset
         keypoints definition.
 
