@@ -1,0 +1,5 @@
+class num
+play 3
+raisehand 2
+standup 1
+sleep 0
