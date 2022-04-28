@@ -118,7 +118,7 @@ class Pose_3D_estimation():
             dataset_info=self.dataset_info_3D,
             with_track_id=False)
 
-        # Pose processing
+        # Pose processing  123
         pose_lift_results_vis = []
         for idx, res in enumerate(pose_lift_results):
             keypoints_3d = res['keypoints_3d']
