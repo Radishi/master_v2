@@ -59,7 +59,7 @@ def process_video(video_path):
 
 
 def process_img(img_path):
-
+    #providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
     app = FaceAnalysis(root="checkpoints/",providers=['CPUExecutionProvider'])  # allowed_modules=['detection'],,'alignment'
     img = cv2.imread(img_path)
     app.prepare(ctx_id=0, det_size=(1120, 1600))
@@ -78,10 +78,15 @@ def process_img(img_path):
 
 
 if __name__ == '__main__':
-    img_list = os.listdir("test_img")
-    for img_name in img_list:
-        img_path = "test_img"+"/"+img_name
-        process_img(img_path)
+    # img_list = os.listdir("test_img")
+    # for img_name in img_list:
+    #     if img_name.split('.')[-1] not in ['jpg','png']:
+    #         continue
+    #     img_path = "test_img"+"/"+img_name
+    #     process_img(img_path)
+    img_path = "test_img" + "/" + "test8.jpg"
+    process_img(img_path)
+
     # model = model_zoo.get_model("checkpoints/models/buffalo_l/det_10g.onnx",providers=['CPUExecutionProvider'])
     # print(model)
 

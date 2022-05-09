@@ -107,7 +107,7 @@ class FaceAnalysis:
             name = self.find_face(embedding)
             if name is not None:
                 cv2.putText(dimg, '%s' % name, (box[0] - 1, box[1] - 4), cv2.FONT_HERSHEY_COMPLEX,
-                            0.7, (0, 255, 0), 1)
+                            1, (0, 255, 0), 1)
 
             # if face.gender is not None and face.age is not None:
             #     cv2.putText(dimg,'%s,%d'%(face.sex,face.age), (box[0]-1, box[1]-4),cv2.FONT_HERSHEY_COMPLEX,0.7,(0,255,0),1)
