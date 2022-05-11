@@ -17,25 +17,28 @@ import os.path as osp
 
 args = abc.abstractproperty()
 def parser_top_down_args():
-    #top dowm config
-    #1
-    # args.pose_config = f'action_classification/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py'  # noqa: E501
-    # args.pose_checkpoint = 'action_classification/checkpoints/hrnet_w32_coco_256x192-c78dce93_20200708.pth'  # noqa: E501
-    #2
-    args.pose_config = f'action_classification/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w48_coco_384x288.py'  # noqa: E501
-    args.pose_checkpoint = 'action_classification/checkpoints/hrnet_w48_coco_384x288-314c8528_20200708.pth'  # noqa: E501
+    # top dowm config v1
+    # args.pose_config = f'action_classification/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py'
+    # args.pose_checkpoint = 'action_classification/checkpoints/hrnet_w32_coco_256x192-c78dce93_20200708.pth'
+    # top dowm config v2
+    args.pose_config = f'action_classification/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w48_coco_384x288.py'
+    args.pose_checkpoint = 'action_classification/checkpoints/hrnet_w48_coco_384x288-314c8528_20200708.pth'
 
-    # #bottom up config
-    # args.pose_config = f'action_classification/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py'  # noqa: E501
-    # args.pose_checkpoint = 'action_classification/checkpoints/hrnet_w32_coco_256x192-c78dce93_20200708.pth'  # noqa: E501
+    # bottom up config v1
+    # args.pose_config = f'action_classification/configs/body/2d_kpt_sview_rgb_img/associative_embedding/coco/higherhrnet_w32_coco_640x640.py'
+    # args.pose_checkpoint = 'action_classification/checkpoints/higher_hrnet32_coco_640x640-a22fe938_20200712.pth'
+    # bottom up config v2
+    # args.pose_config = f'action_classification/configs/body/2d_kpt_sview_rgb_img/associative_embedding/coco/higherhrnet_w48_coco_512x512.py'
+    # args.pose_checkpoint = 'action_classification/checkpoints/higher_hrnet48_coco_512x512-60fedcbc_20200712.pth'
 
-    args.device = "cuda:0"
-    # detect
-    # args.det_config = f'action_classification/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco-person.py'  # noqa: E501
-    # args.det_checkpoint = 'action_classification/checkpoints/faster_rcnn_r50_fpn_1x_coco-person_20201216_175929-d022e227.pth'  # noqa: E501
+    # detect v1
+    # args.det_config = f'action_classification/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco-person.py'
+    # args.det_checkpoint = 'action_classification/checkpoints/faster_rcnn_r50_fpn_1x_coco-person_20201216_175929-d022e227.pth'
+    # detect v2
     args.det_config = f'action_classification/configs/faster_rcnn/faster_rcnn_r50_fpn_coco.py'  # noqa: E501
     args.det_checkpoint = 'action_classification/checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'  # noqa: E501
 
+    args.device = "cuda:0"
     args.det_score_thr = 0.5
     args.det_cat_id = 1
     args.bbox_thr = 0.5
