@@ -32,14 +32,14 @@ def parser_top_down_args():
     # args.pose_checkpoint = 'action_classification/checkpoints/higher_hrnet48_coco_512x512-60fedcbc_20200712.pth'
 
     # detect v1
-    # args.det_config = f'action_classification/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco-person.py'
-    # args.det_checkpoint = 'action_classification/checkpoints/faster_rcnn_r50_fpn_1x_coco-person_20201216_175929-d022e227.pth'
+    args.det_config = f'action_classification/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco-person.py'
+    args.det_checkpoint = 'action_classification/checkpoints/faster_rcnn_r50_fpn_1x_coco-person_20201216_175929-d022e227.pth'
     # detect v2
-    args.det_config = f'action_classification/configs/faster_rcnn/faster_rcnn_r50_fpn_coco.py'  # noqa: E501
-    args.det_checkpoint = 'action_classification/checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'  # noqa: E501
+    # args.det_config = f'action_classification/configs/faster_rcnn/faster_rcnn_r50_fpn_coco.py'  # noqa: E501
+    # args.det_checkpoint = 'action_classification/checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'  # noqa: E501
 
     args.device = "cuda:0"
-    args.det_score_thr = 0.5
+    # args.det_score_thr = 0.5
     args.det_cat_id = 1
     args.bbox_thr = 0.5
     args.kpt_thr = 0.5

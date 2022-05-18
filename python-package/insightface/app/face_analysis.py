@@ -95,7 +95,7 @@ class FaceAnalysis:
 
 
 
-    def draw_on(self, img, faces):
+    def draw_on(self, img, faces,face_dis_thr=23):
         import cv2
         dimg = img.copy()
         for i in range(len(faces)):
@@ -104,7 +104,7 @@ class FaceAnalysis:
             color = (0, 0, 255)
             cv2.rectangle(dimg, (box[0], box[1]), (box[2], box[3]), color, 2)
             embedding = face["embedding"]
-            name = self.find_face(embedding,dis_thr=23)
+            name = self.find_face(embedding,dis_thr=face_dis_thr)
             if name is not None:
                 cv2.putText(dimg, '%s' % name, (box[0] - 1, box[1] - 4), cv2.FONT_HERSHEY_COMPLEX,
                             1, (0, 255, 0), 1)
