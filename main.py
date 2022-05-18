@@ -42,7 +42,9 @@ def process_video(video_path):
             int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     videoWriter = cv2.VideoWriter("output.mp4", fourcc, fps, size)
-
+    app = FaceAnalysis(root="checkpoints/",
+                       providers=['GPUExecutionProvider'])  # allowed_modules=['detection'],,'alignment'
+    app.prepare(ctx_id=0, det_size=(1120, 1600))  # , det_size=(1120, 1600)
     action_recognizer = Action_Recognizer()
     num_frame = 0
     while True:
@@ -50,9 +52,9 @@ def process_video(video_path):
         if not ret:
             break
         num_frame += 1
-
-
-        videoWriter.write(img)
+        faces = app.get(img)
+        rimg = app.draw_on(img, faces)
+        videoWriter.write(rimg)
         print("----------------process frame_num {}----------".format(num_frame))
     cap.release()
     videoWriter.release()
