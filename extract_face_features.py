@@ -33,7 +33,7 @@ class extractor:
         self.prepare(0)
 
 
-    def prepare(self, ctx_id, det_thresh=0.5, det_size=(640, 640)):
+    def prepare(self, ctx_id, det_thresh=0.5, det_size=(640,640)):
         self.det_thresh = det_thresh
         assert det_size is not None
         print('set det-size:', det_size)
@@ -65,7 +65,8 @@ class extractor:
                                              max_num=max_num,
                                              metric='default')
                 if bboxes.shape[0] == 0:
-                    return []
+                    print(person,person_img)
+                    continue
                 bbox = bboxes[0, 0:4]
                 det_score = bboxes[0, 4]
                 kps = None

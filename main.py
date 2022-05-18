@@ -62,7 +62,7 @@ def process_img(img_path):
     #providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
     app = FaceAnalysis(root="checkpoints/",providers=['CPUExecutionProvider'])  # allowed_modules=['detection'],,'alignment'
     img = cv2.imread(img_path)
-    app.prepare(ctx_id=0, det_size=(1120, 1600))
+    app.prepare(ctx_id=0,det_size=(1120, 1600))#, det_size=(1120, 1600)
 
     faces = app.get(img)
     rimg = app.draw_on(img, faces)
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     #         continue
     #     img_path = "test_img"+"/"+img_name
     #     process_img(img_path)
-    img_path = "test_img" + "/" + "test8.jpg"
+    img_path = "test_img" + "/" + "test14.jpeg"
     process_img(img_path)
 
     # model = model_zoo.get_model("checkpoints/models/buffalo_l/det_10g.onnx",providers=['CPUExecutionProvider'])

@@ -109,10 +109,11 @@ def top_down_img(image,det_model,pose_model,is_show_keypoints=False):
         dataset_info=dataset_info,
         return_heatmap=return_heatmap,
         outputs=output_layer_names)
-    img = None
+
+
     if is_show_keypoints:
         # show the results
-        img = vis_pose_result(
+        image = vis_pose_result(
             pose_model,
             image,
             pose_results,
@@ -122,7 +123,7 @@ def top_down_img(image,det_model,pose_model,is_show_keypoints=False):
             radius=args.radius,
             thickness=args.thickness)
     # 增加返回人体检测框 mmdet_results 用来绑定其他信息
-    return img,pose_results,mmdet_results
+    return image,pose_results,mmdet_results
 
 
 def bottom_up_img(image):
