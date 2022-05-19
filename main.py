@@ -67,7 +67,7 @@ def process_img(img_path):
     app.prepare(ctx_id=0,det_size=(1120, 1600))#, det_size=(1120, 1600)
 
     faces = app.get(img)
-    rimg = app.draw_on(img, faces)
+    rimg = app.draw_on(img, faces,face_dis_thr=26)
 
     # recognizer = Action_Recognizer()
     #
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     #         continue
     #     img_path = "test_img"+"/"+img_name
     #     process_img(img_path)
-    img_path = "test_img" + "/" + "test14.jpeg"
+    img_path = "test_img" + "/" + "test12.jpeg"
     process_img(img_path)
 
     # model = model_zoo.get_model("checkpoints/models/buffalo_l/det_10g.onnx",providers=['CPUExecutionProvider'])

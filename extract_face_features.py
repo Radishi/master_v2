@@ -4,7 +4,9 @@ import pickle
 import os.path as osp
 import os
 import cv2
+import numpy as np
 import onnxruntime
+from PIL import Image, ImageDraw, ImageFont
 from insightface.model_zoo import model_zoo
 from insightface.utils import ensure_available
 from insightface.app.common import Face
@@ -61,11 +63,14 @@ class extractor:
             for person_img in person_img_list:
                 img_path = os.path.join(person_img_path,person_img)
                 img = cv2.imread(img_path)
+                if not isinstance(img,np.ndarray):
+                    img = Image.open(img_path)
+                    img = cv2.cvtColor(np.asarray(img),cv2.COLOR_RGB2BGR)
                 bboxes, kpss = self.det_model.detect(img,
                                              max_num=max_num,
                                              metric='default')
                 if bboxes.shape[0] == 0:
-                    print(person,person_img)
+                    print("Can't detect face:",person,person_img)
                     continue
                 bbox = bboxes[0, 0:4]
                 det_score = bboxes[0, 4]
@@ -79,7 +84,20 @@ class extractor:
                     model.get(img, face)
                 person_features.append(face["embedding"])
             features_list[person] = person_features
+            if len(person_features)!=0:
+                print("----------{} extract feature done! ---------".format(person))
+
         return features_list
+
+
+def draw_text(img, str, position, color):
+    img_PIL = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    font = ImageFont.truetype(
+        "font/simsun.ttc", 25, encoding="utf-8")
+    draw = ImageDraw.Draw(img_PIL)
+    draw.text(position, str, font=font, fill=color)
+    img = cv2.cvtColor(np.asarray(img_PIL), cv2.COLOR_RGB2BGR)
+    return img
 
 
 def read_pkl(file_dir):

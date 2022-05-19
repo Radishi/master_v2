@@ -13,13 +13,27 @@
 #
 # cap.release()
 # cv2.destroyAllWindows()
+#
+# import os
+# import shutil
+# from PIL import Image
+# import cv2
+# root = r"C:\Users\radishi\Desktop\4班\4班"
+# name_list = os.listdir(r"C:\Users\radishi\Desktop\4班\4班")
+#
+# for name in name_list:
+#     folder_path = os.path.join(root,name)
+#     image_name = name+".png"
+#     image_path = os.path.join(folder_path,image_name)
+#     image = Image.open(image_path)
+#     save_image_name = name+"_flip.png"
+#     save_path = os.path.join(folder_path,save_image_name)
+#     image.transpose(Image.FLIP_LEFT_RIGHT).save(save_path)
+from extract_face_features import read_pkl
 
+path = "face_database/luo/img1.jpg"
 import cv2
-img_path = "face_database" + "/" + "luo/"+"img1.jpg"
-img = cv2.imread(img_path)
-new_shape = (50,60)
-img = cv2.resize(img,new_shape)
-cv2.imwrite("face_database/luo/low_resolution1.jpg",img)
-
-
+from PIL import Image
+data = read_pkl("face_database.pkl")
+print(data.keys())
 
